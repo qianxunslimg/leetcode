@@ -472,20 +472,106 @@ public:
     }
     return res;
   }
+
+  int arrangeCoins(int n) {
+    return (int)((sqrt((long long)8 * n + 1) - 1) / 2);
+  }
+
+  int lengthOfLongestSubstring(string s) {
+    if (s.size() == 0) {
+      return 0;
+    }
+    vector<string> ss;
+    for (int i = 0; i < s.size(); i++) {
+      unordered_map<char, int> temp_map;
+      for (int j = i; j < s.size(); j++) {
+        ++temp_map[s[j]];
+        if (temp_map[s[j]] > 1) {
+          string sss = s.substr(i, j - i);
+          ss.push_back(sss);
+          break;
+        }
+        if (j == s.size() - 1) {
+          string sss = s.substr(i, s.size() - i);
+          ss.push_back(sss);
+        }
+      }
+    }
+    if (ss.size() == 0) {
+      return s.size();
+    }
+    sort(ss.begin(), ss.end(),
+         [](string &a, string &b) { return a.size() > b.size(); });
+
+    return ss[0].size();
+  }
+
+  int lengthOfLongestSubstring2(string s) {
+    // 哈希集合，记录每个字符是否出现过
+    unordered_set<char> occ;
+    int n = s.size();
+    // 右指针，初始值为 -1，相当于我们在字符串的左边界的左侧，还没有开始移动
+    int rk = -1, ans = 0;
+    // 枚举左指针的位置，初始值隐性地表示为 -1
+    for (int i = 0; i < n; ++i) {
+      if (i != 0) {
+        // 左指针向右移动一格，移除一个字符
+        occ.erase(s[i - 1]);
+      }
+      while (rk + 1 < n && !occ.count(s[rk + 1])) {
+        // 不断地移动右指针
+        occ.insert(s[rk + 1]);
+        ++rk;
+      }
+      // 第 i 到 rk 个字符是一个极长的无重复字符子串
+      ans = max(ans, rk - i + 1);
+    }
+    return ans;
+  }
+
+  int lengthOfLongestSubstring3(string s) {
+    if (s.size() == 0)
+      return 0;
+    unordered_set<char> lookup;
+    int maxStr = 0;
+    int left = 0;
+    for (int i = 0; i < s.size(); i++) {
+      while (lookup.find(s[i]) != lookup.end()) {
+        lookup.erase(s[left]);
+        left++;
+      }
+      maxStr = max(maxStr, i - left + 1);
+      lookup.insert(s[i]);
+    }
+    return maxStr;
+  }
+
+  double findMedianSortedArrays(vector<int> &nums1, vector<int> &nums2) {
+    vector<int> res = nums1;
+    res.insert(res.end(), nums2.begin(), nums2.end());
+    sort(res.begin(), res.end());
+    int n = res.size();
+    if (n % 2) {
+      return (double)(res[n / 2] + res[n / 2 - 1]) / 2;
+    } else {
+      return res[n / 2];
+    }
+  }
 };
 
 void solve() {
   Solution mysolution;
-  vector<int> nums1 = {1, 3, -1, -3, 5, 3, 6, 7};
-  int target = 3;
-  string a = "aaaaaaa";
-  string b = "aa";
+  vector<int> nums1 = {1, 3};
+  vector<int> nums2 = {2};
+  int target = 5;
+  string a = "abcabcbb";
+  string b = "aab";
   vector<double> test = {1.11, 2.5, 3.94, 10, 11.5, 11.111, 12.53, 10};
   vector<string> dictionary = {"ale", "apple", "monkey", "plea"};
   string s = "the sky is blue";
   string s1 = "aaaaa";
   string s2 = "abbcd";
-  vector<int> str = mysolution.maxSlidingWindow3(nums1, target);
+  double aa = mysolution.findMedianSortedArrays(nums1, nums2);
 }
 int main() {
   solve();
