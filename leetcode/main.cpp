@@ -9,7 +9,7 @@
 #include <vector>
 using namespace std;
 
-// Definition for singly - linked list.
+//  Definition for singly - linked list.
 struct ListNode {
   int val;
   ListNode *next;
