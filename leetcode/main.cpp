@@ -8,18 +8,9 @@
  * \author qianxunslimg
  * \date 十一月 2021
  */
+
 class Solution {
 public:
-  struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode() : val(0), left(nullptr), right(nullptr) {}
-    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
-    TreeNode(int x, TreeNode *left, TreeNode *right)
-        : val(x), left(left), right(right) {}
-  };
-
   vector<string> findRelativeRanks2(vector<int> &score) {
     int n = score.size();
     map<int, int, greater<int>> num2index;
@@ -1393,20 +1384,20 @@ public:
     return 0;
   }
 
-  int findNthDigit(int n) {
-    int d = 1, count = 9;
-    while (n > (long)d * count) {
-      n -= d * count;
-      d++;
-      count *= 10;
-    }
-    int index = n - 1;
-    int start = (int)pow(10, d - 1);
-    int num = start + index / d;
-    int digitIndex = index % d;
-    int digit = (num / (int)(pow(10, d - digitIndex - 1))) % 10;
-    return digit;
-  }
+  //   int findNthDigit(int n) {
+  //     int d = 1, count = 9;
+  //     while (n > (long)d * count) {
+  //       n -= d * count;
+  //       d++;
+  //       count *= 10;
+  //     }
+  //     int index = n - 1;
+  //     int start = (int)pow(10, d - 1);
+  //     int num = start + index / d;
+  //     int digitIndex = index % d;
+  //     int digit = (num / (int)(pow(10, d - digitIndex - 1))) % 10;
+  //     return digit;
+  //   }
 
   int largestPerimeter(vector<int> &nums) {
     sort(nums.begin(), nums.end(), [](int a, int b) -> bool { return a > b; });
@@ -1618,17 +1609,6 @@ public:
       }
     }
     return 1;
-  }
-
-  double myPow(double x, int n) {
-    double res = 1.0;
-    for (int i = n; i != 0; i /= 2) {
-      if (i % 2 != 0) {
-        res *= x;
-      }
-      x *= x;
-    }
-    return n < 0 ? 1 / res : res;
   }
 
   int superPow(int a, vector<int> &b) {
@@ -2261,10 +2241,10 @@ public:
     int len = nums.size();
     if (len < 3)
       return false;
-    int small = INT_MAX, mid = INT_MAX;
+    int smalsl = INT_MAX, mid = INT_MAX;
     for (auto num : nums) {
-      if (num <= small) {
-        small = num;
+      if (num <= smalsl) {
+        smalsl = num;
       } else if (num <= mid) {
         mid = num;
       } else if (num > mid) {
@@ -2290,27 +2270,1379 @@ public:
     }
     return 0;
   }
+
+  // vector<int> path;
+  bool backTrace(int startIndex, vector<int> &nums) {
+    if (path.size() == 3) {
+      return true;
+    }
+
+    for (int i = startIndex; i < nums.size(); i++) {
+      if (!path.empty() && nums[i] <= path.back())
+        continue;
+      path.push_back(nums[i]);
+      if (backTrace(i + 1, nums))
+        return true;
+      path.pop_back();
+    }
+    return false;
+  }
+
+  bool increasingTriplet4(vector<int> &nums) {
+    unordered_set<int> set(nums.begin(), nums.end());
+    if (set.size() < 3)
+      return false;
+    return backTrace(0, nums);
+  }
+
+  int dominantIndex(vector<int> &nums) {
+    int m1 = -1, m2 = -1;
+    int index = -1;
+    for (int i = 0; i < nums.size(); i++) {
+      if (nums[i] > m1) {
+        m2 = m1;
+        m1 = nums[i];
+        index = i;
+      } else if (nums[i] > m2) {
+        m2 = nums[i];
+      }
+    }
+    return m1 >= m2 * 2 ? index : -1;
+  }
+
+  vector<vector<int>> kSmallestPairs(vector<int> &nums1, vector<int> &nums2,
+                                     int k) {
+    int pos1 = 0;
+    int pos2 = 0;
+    vector<vector<int>> ans;
+    while (ans.size() < k) {
+      ans.push_back(vector<int>{nums1[pos1], nums2[pos2]});
+      if (pos1 == nums1.size() - 1 || pos2 == nums2.size() - 1) {
+        if (pos1 == nums1.size() - 1) {
+          pos2++;
+        } else
+          pos1++;
+      } else if (nums1[pos1 + 1] < nums2[pos2 + 1])
+        pos1++;
+      else
+        pos2++;
+    }
+    return ans;
+  }
+
+  vector<vector<int>> ans;
+  // vector<int> path;
+
+  void backtracking(vector<int> cand, int target, int sum) {
+    if (sum > target)
+      return;
+    if (sum == target) {
+      sort(path.begin(), path.end());
+      ans.push_back(path);
+      return;
+    }
+    for (int i = 0; i < cand.size(); i++) {
+      sum += cand[i];
+      path.push_back(cand[i]);
+      backtracking(cand, target, sum);
+      sum -= cand[i];
+      path.pop_back();
+    }
+  }
+  vector<vector<int>> combinationSum(vector<int> &candidates, int target) {
+    backtracking(candidates, target, 0);
+    sort(ans.begin(), ans.end());
+    ans.erase(unique(ans.begin(), ans.end()), ans.end());
+    return ans;
+  }
+
+  vector<int> decrypt(vector<int> &code, int k) {
+    vector<int> ans(code.size(), 0);
+    if (k == 0)
+      return ans;
+    int size = code.size();
+    int sum = 0;
+    if (k > 0) {
+      for (int i = 0; i < code.size(); i++) {
+        if (i < k) {
+          sum += code[(i + 1) % size];
+        } else if (i == k)
+          ans[i - k] = sum;
+        else {
+          sum -= code[(i - k + 1) % size];
+          sum += code[(i + 1) % size];
+          ans[i - k] = sum;
+        }
+      }
+    }
+    return ans;
+  }
+
+  string reorganizeString(string s) {
+    unordered_map<char, int> mapp;
+    string ans;
+    int maxCount = INT_MIN;
+    for (auto ch : s) {
+      mapp[ch]++;
+      maxCount = maxCount > mapp[ch] ? maxCount : mapp[ch];
+    }
+    if (maxCount > ((s.size() + 1) / 2))
+      return ans;
+    vector<pair<int, int>> vec(mapp.begin(), mapp.end());
+    sort(vec.begin(), vec.end(),
+         [](pair<int, int> a, pair<int, int> b) -> bool {
+           return a.second > b.second;
+         }); // 给频率排个序
+    ans = s;
+    int index = 0; // 先按奇数位散开
+    for (int i = 0; i < vec.size(); i++) {
+      while (vec[i].second--) {
+        ans[index] = vec[i].first;
+        index += 2;
+        if (index >= s.size())
+          index = 1; // 奇数位插满了插偶数位
+      }
+    }
+    return ans;
+  }
+
+  //   string longestNiceSubstring(string s) {
+  //     string ans;
+  //     int maxLen = INT_MIN;
+  //     for (int i = 0; i < s.size(); i++) {
+  //       for (int j = 1; j + i <= s.size(); j++) {
+  //         if (j > maxLen) {
+  //           string ss = s.substr(i, j);
+  //           if (isNiceString(s.substr(i, j))) {
+  //             maxLen = j;
+  //             ans = s.substr(i, j);
+  //             cout << ans << endl;
+  //           }
+  //         }
+  //       }
+  //     }
+  //     return ans;
+  //   }
+  //   bool isNiceString(string s) {
+  //     set<char> set1(s.begin(), s.end());
+  //     set<char> set2;
+  //     for (auto ch : s)
+  //       set2.insert(tolower(ch));
+  //     return set1.size() == (set2.size() * 2);
+  //   }
+  string longestNiceSubstring(string s) {
+    int n = s.size();
+    int maxPos = 0;
+    int maxLen = 0;
+    for (int i = 0; i < n; ++i) {
+      int lower = 0;
+      int upper = 0;
+      for (int j = i; j < n; ++j) {
+        if (islower(s[j])) {
+          int l = s[j] - 'a';
+          int ll = 1 << (s[j] - 'a');
+          lower |= 1 << (s[j] - 'a');
+        } else {
+          upper |= 1 << (s[j] - 'A');
+        }
+        if (lower == upper && j - i + 1 > maxLen) {
+          maxPos = i;
+          maxLen = j - i + 1;
+        }
+      }
+    }
+    return s.substr(maxPos, maxLen);
+  }
+
+  string longestDiverseString(int a, int b, int c) {
+    string res;
+    vector<pair<int, char>> arr = {{a, 'a'}, {b, 'b'}, {c, 'c'}};
+
+    while (true) {
+      sort(arr.begin(), arr.end(),
+           [](const pair<int, char> &p1, const pair<int, char> &p2) {
+             return p1.first > p2.first;
+           });
+      bool hasNext = false;
+      for (auto &pairr : arr) {
+        int freq = pairr.first;
+        char ch = pairr.second;
+        int m = res.size();
+        if (freq <= 0) {
+          break;
+        }
+        if (m >= 2 && res[m - 2] == ch && res[m - 1] == ch) {
+          continue;
+        }
+        hasNext = true;
+        res.push_back(ch);
+        freq--;
+        break;
+      }
+      if (!hasNext) {
+        break;
+      }
+    }
+
+    return res;
+  }
+
+  //暴力
+  int threeSumClosest(vector<int> &nums, int target) {
+    int ans = INT_MAX;
+    int min_dis = INT_MAX;
+    int n = nums.size();
+    for (int i = 0; i < n; i++) {
+      for (int j = i + 1; j < n; j++) {
+        for (int z = j + 1; z < n; z++) {
+          int sum = nums[i] + nums[j] + nums[z]; //和
+          int dis = abs(target - sum);
+          if (dis < min_dis) {
+            ans = sum;
+            min_dis = dis;
+          }
+        }
+      }
+    }
+    return ans;
+  }
+
+  vector<int> findSubstring(string s, vector<string> &words) {
+    vector<int> res;
+    map<string, int> keyMapCount, keyMapCountTemp;
+    int len = words[0].size(), totalLen = len * words.size();
+    for (auto it : words)
+      keyMapCount[it]++;
+    for (int i = 0; i < s.size() - totalLen + 1; i++) {
+      int j = i;
+      keyMapCountTemp = keyMapCount;
+      for (; j < i + totalLen; j += len) {
+        string temp = s.substr(j, len);
+        if (keyMapCountTemp[temp] == 0)
+          break;
+        keyMapCountTemp[temp]--;
+      }
+      if (j == i + totalLen)
+        res.push_back(i);
+    }
+    return res;
+  }
+
+  string convert(string s, int numRows) {
+    if (numRows == 1)
+      return s;
+
+    vector<string> rows(min(numRows, int(s.size())));
+    int curRow = 0;
+    bool goingDown = false;
+
+    for (char c : s) {
+      rows[curRow] += c;
+      if (curRow == 0 || curRow == numRows - 1)
+        goingDown = !goingDown;
+      curRow += goingDown ? 1 : -1;
+    }
+
+    string ret;
+    for (string row : rows)
+      ret += row;
+    return ret;
+  }
+
+  //最优解， 反转一半的数字
+  bool isPalindrome(int x) {
+    // 特殊情况：
+    // 如上所述，当 x < 0 时，x 不是回文数。
+    // 同样地，如果数字的最后一位是 0，为了使该数字为回文，
+    // 则其第一位数字也应该是 0
+    // 只有 0 满足这一属性
+    if (x < 0 || (x % 10 == 0 && x != 0)) {
+      return false;
+    }
+    int revertedNumber = 0;
+    while (x > revertedNumber) {
+      revertedNumber = revertedNumber * 10 + x % 10;
+      x /= 10;
+    }
+    // 当数字长度为奇数时，我们可以通过 revertedNumber/10 去除处于中位的数字。
+    // 例如，当输入为 12321 时，在 while 循环的末尾我们可以得到 x =
+    // 12，revertedNumber = 123，
+    // 由于处于中位的数字不影响回文（它总是与自己相等），所以我们可以简单地将其去除。
+    return x == revertedNumber || x == revertedNumber / 10;
+  }
+
+  bool isMatch(string s, string p) {
+    bool dp[21][30] = {};
+    dp[0][0] = true;
+    int szs = s.size(), szp = p.size();
+    for (int i = 0; i <= szs; ++i) {
+      for (int j = 1; j <= szp; ++j) {
+        if (i) {
+          dp[i][j] |=
+              (dp[i - 1][j - 1] &&
+               (s[i - 1] == p[j - 1] || p[j - 1] == '.')); // s[i]、s[j]两两匹配
+          if (j > 1)
+            dp[i][j] |=
+                (dp[i - 1][j] && (s[i - 1] == p[j - 2] || p[j - 2] == '.') &&
+                 p[j - 1] == '*'); //*匹配多个：aaaa a*  aaaa .*
+        }
+        if (j > 1) {
+          dp[i][j] |=
+              (dp[i][j - 2] && p[j - 1] == '*'); //*将前一个字符跳过： ab c*abc*
+        }
+        dp[i][j] |=
+            (dp[i][j - 1] &&
+             p[j] == '*'); //*不用： a a*
+                           // cout << i << ' ' << j << ' ' << dp[i][j] << endl;
+      }
+    }
+    return dp[szs][szp];
+  }
+
+  string longestCommonPrefix(vector<string> &strs) {
+    if (strs.empty())
+      return "";
+    const auto p = minmax_element(strs.begin(), strs.end());
+    for (int i = 0; i < p.first->size(); ++i) {
+      if (p.first->at(i) != p.second->at(i))
+        return p.first->substr(0, i);
+    }
+    return *p.first;
+  }
+
+  vector<int> pancakeSort(vector<int> &arr) {
+    vector<int> ans;
+    int n = arr.size();
+    auto isSorted = [](vector<int> arry) -> bool {
+      vector<int> copy = arry;
+      sort(arry.begin(), arry.end());
+      return copy == arry;
+    };
+    while (!isSorted(arr)) {
+      //       int maxx = *max_element(arr.begin(), arr.begin() + n);
+      //       int pos = 0;
+      //       for (int i = 0; i < n; i++) {
+      //         if (maxx == arr[i]) {
+      //           pos = i;
+      //           break;
+      //         }
+      //       }
+      int pos = max_element(arr.begin(), arr.begin() + n) - arr.begin();
+      reverse(arr.begin(), arr.begin() + pos + 1);
+      reverse(arr.begin(), arr.begin() + n);
+      ans.push_back(pos + 1);
+      ans.push_back(n);
+      n--;
+    }
+    return ans;
+  }
+
+  bool isOneBitCharacter(vector<int> &bits) {
+    int n = bits.size();
+    bool ans = 0;
+    int i = 0;
+    for (; i < n - 1; i++) {
+      if (bits[i] == 1) {
+        i++;
+      }
+    }
+    return ans;
+  }
+  string pushDominoes(string dominoes) {
+    int n = dominoes.size();
+    queue<int> q;
+    vector<int> time(n, -1);
+    vector<string> force(n);
+    for (int i = 0; i < n; i++) {
+      if (dominoes[i] != '.') {
+        q.emplace(i);
+        time[i] = 0;
+        force[i].push_back(dominoes[i]);
+      }
+    }
+
+    string res(n, '.');
+    while (!q.empty()) {
+      int i = q.front();
+      q.pop();
+      if (force[i].size() == 1) {
+        char f = force[i][0];
+        res[i] = f;
+        int ni = (f == 'L') ? (i - 1) : (i + 1);
+        if (ni >= 0 && ni < n) {
+          int t = time[i];
+          if (time[ni] == -1) {
+            q.emplace(ni);
+            time[ni] = t + 1;
+            force[ni].push_back(f);
+          } else if (time[ni] == t + 1) {
+            force[ni].push_back(f);
+          }
+        }
+      }
+    }
+    return res;
+  }
+
+  string reverseOnlyLetters(string s) {
+    int left = 0, right = s.size() - 1;
+    while (left < right) {
+      if (isalpha(s[left]) && isalpha(s[right])) {
+        swap(s[left], s[right]);
+        left++;
+        right--;
+      } else {
+        left += isalpha(s[left]) ? 0 : 1;
+        right -= isalpha(s[right]) ? 0 : 1;
+      }
+    }
+    return s;
+  }
+
+  vector<int> searchRange(vector<int> &nums, int target) {
+    int l = 0, r = nums.size();
+    int pos1 = 0;
+    int pos2 = nums.size() - 1;
+    while (l < r) {
+      int mid = l + (r - l) / 2;
+      if (nums[mid] > target) {
+        r = mid;
+      } else if (nums[mid] < target) {
+        l = mid + 1;
+      } else { //找到
+        pos1 = pos2 = mid;
+        while (pos1 >= 0 && nums[pos1] == target) {
+          pos1--;
+        }
+        while (pos2 < nums.size() && nums[pos2] == target) {
+          pos2++;
+        }
+        return {pos1 + 1, pos2 - 1};
+      }
+    }
+    return {-1, -1};
+  }
+
+  // int search(vector<int> &nums, int target) {
+  //  int l = 0, r = nums.size() - 1;
+  //  bool findArea = 0;
+  //  while (l <= r) {
+  //    int mid = l + (r - l) / 2;
+  //    if (!findArea) {
+  //      if (nums[l] < nums[mid] && nums[mid] < nums[r]) {
+  //        findArea = 1;
+  //        continue;
+  //      }
+  //      if (nums[l] < target)
+  //        r = mid - 1;
+  //      else if (nums[l] > target)
+  //        l = mid;
+  //      else
+  //        return l;
+  //    }
+  //    if (findArea) {
+  //      if (target < nums[mid]) {
+  //        r = mid - 1;
+  //      }
+  //      if (nums[mid] < target) {
+  //        l = mid + 1;
+  //      } else
+  //        return mid;
+  //    }
+  //  }
+  //  return -1;
+  //}
+
+  int search(vector<int> &nums, int target) {
+    int l = 0, r = nums.size() - 1;
+    bool findArea = 0;
+    while (l <= r) {
+      int mid = l + (r - l) / 2;
+
+      //查找转折点
+      if (!findArea) {
+        if (nums[l] <= nums[mid] && nums[mid] <= nums[r]) {
+          findArea = 1;
+          continue;
+        }
+        if (nums[mid] > nums[l]) {
+          l = mid + 1;
+        } else if (nums[mid] < nums[r]) {
+          r = mid - 1;
+        }
+      }
+      if (findArea) {
+        if (target < nums[mid]) {
+          r = mid - 1;
+        }
+        if (nums[mid] < target) {
+          l = mid + 1;
+        } else
+          return mid;
+      }
+    }
+    return -1;
+  }
+
+  vector<vector<int>> dir{{1, 0}, {0, 1}, {-1, 0}, {0, -1}}; //顺时针方向
+  vector<int> anss;
+  int count = 0;
+  vector<int> spiralOrder(vector<vector<int>> &matrix) {
+    anss.clear();
+    dfs(matrix, 0, 0, 0);
+    return anss;
+  }
+
+  void dfs(vector<vector<int>> &matrix, int x, int y, int index) {
+    if (x < 0 || y < 0 || x >= matrix.size() || y >= matrix[0].size() ||
+        matrix[x][y] == -1) {
+      index++;
+      if (anss.size() == matrix.size() * (matrix[0].size()))
+        return;
+      dfs(matrix, x - dir[(index - 1) % 4][0] + dir[index % 4][0],
+          y - dir[(index - 1) % 4][1] + dir[index % 4][1], index);
+    }
+    anss.push_back(matrix[x][y]);
+
+    matrix[x][y] = -1;
+    dfs(matrix, x + dir[index % 4][0], y + dir[index % 4][1], index);
+  }
+
+  vector<int> ansdd;
+  vector<int> findBall(vector<vector<int>> &grid) {
+    ansdd.clear();
+    dfss(grid, 0, 1, 0);
+    return ansdd;
+  }
+
+  void dfss(vector<vector<int>> &grid, int x, int y, int from) {
+    if (y < 0 || y >= grid[0].size()) {
+      ansdd.push_back(-1);
+      return;
+    }
+    int temp = from + grid[x][y];
+    if (temp == 0) { // 1 + -1 = 0 死角
+      ansdd.push_back(-1);
+      return;
+    }
+    if (x == grid.size() - 1 && from != 0) { //到底
+      ansdd.push_back(y);
+      return;
+    }
+
+    if (from == 0) { //从上面来 向左右运动
+      dfss(grid, x, y + grid[x][y], grid[x][y]);
+    }
+    //方向相同 向下
+    if (from == grid[x][y])
+      dfss(grid, x + 1, y, 0);
+  }
+
+  //
+  double myPow(double x, int n) {
+    double res = 1.0;
+    for (int i = n; i != 0; i /= 2) {
+      if (i % 2 != 0) { //奇数额外乘上 同时能保证结束为1 乘到res上
+        res *= x;
+      }
+      x *= x;
+    }
+    return n < 0 ? 1 / res : res;
+  }
+
+  double myyPow(double x, int n) {
+    double res = 1.0;
+    int i = n;
+    while (i != 0) { //判断条件 可能是负数
+      if (i % 2 != 0) {
+        res *= x;
+      }
+      i /= 2;
+      x *= x;
+    }
+    return n < 0 ? 1 / res : res;
+  }
+
+  // bool isNumber(string s) {
+  //  int n = s.size();
+  //  int l = 0;
+  //  while (s[l] == ' ')
+  //    l++;
+  //  int r = n - 1;
+  //  while (s[r - 1] == ' ')
+  //    r--;
+
+  //  int s1 = 0; // e 或者.的个数
+  //  int epos = 0;
+  //  for (int i = l; i <= r; i++) {
+  //    if (isalpha(s[i])) {
+  //      if (s[i] != 'e')
+  //        return 0; //错误 非e字母
+  //    }
+  //    if (s1 > 1)
+  //      return 0; // e . 超个数
+  //    //一个符号字符（'+' 或 '-'）
+  //    if (s[i] == '+' || s[i] == '-') {
+  //      if (i == l)
+  //        continue;
+  //      else
+  //        return 0; //则正负只能在首位
+  //    }
+  //    if (epos == 0) {
+  //      if (s[i] == '.' || s[i] == 'e') {
+  //        epos = i;
+  //        s1++;
+  //      }
+  //      if (epos == r)
+  //        return 0;
+  //    } else {
+  //      if (s[i] == '.' || s[i] == 'e') {
+  //        return 0;
+  //      }
+  //    }
+  //  }
+  //  return 1;
+  //}
+
+  //   bool isNumber(string s) {
+  //     int n = s.size();
+  //     int l = 0;
+  //     if (s[0] == 'e')
+  //       return 0;
+  //     while (s[l] == ' ')
+  //       l++;
+  //     if (l == n) {
+  //       return 0;
+  //     }
+  //     int r = n - 1;
+  //     while (s[r] == ' ')
+  //       r--;
+  //
+  //     int s1 = 0; // e 或者.的个数
+  //     int epos = 0;
+  //     for (int i = l; i <= r; i++) {
+  //       if (isalpha(s[i])) {
+  //         if (s[i] != 'e' && s[i] != 'E')
+  //           return 0; //错误 非e字母
+  //       }
+  //       if (s1 > 1)
+  //         return 0; // e . 超个数
+  //                   //一个符号字符（'+' 或 '-'）
+  //       if (s[i] == '+' || s[i] == '-') {
+  //         if (i == l)
+  //           continue;
+  //         else if (s[i - 1] == 'e' || s[i - 1] == 'E') {
+  //           continue;
+  //         } else
+  //           return 0; //则正负只能在首位
+  //       }
+  //       if (s[i] == '.' || s[i] == 'e' || s[i] == 'E') {
+  //         if (i == r) {
+  //           return 0;
+  //         }
+  //         s1++;
+  //       }
+  //     }
+  //     return 1;
+  //   }
+
+  int i = 0;
+  //扫描空格
+  void getSpace(string &s) { //移动前后space
+    while (i < s.size() && s[i] == ' ')
+      i++;
+  }
+  //扫描有符号整数
+  bool getInt(string &s) { //匹配 +212313  -14556 1231
+    if (i < s.size() && (s[i] == '+' || s[i] == '-'))
+      i++;
+    return getUint(s);
+  }
+  //扫描无符号整数
+  bool getUint(string &s) { //匹配 12312
+    int tmp = i;
+    while (i < s.size() && isdigit(s[i]))
+      i++;
+    return i > tmp;
+  }
+  bool isNumber(string s) {
+    if (s == "")
+      return false;
+    getSpace(s);
+    bool flag = getInt(s);
+    if (i < s.size() && s[i] == '.') {
+      i++;
+      //当为.时,后面必须是无符号整数，并且.的前后只要有一个为true就行
+      //而且必须把getUint(s)放在前面，不然由于||的短视特征，小数点后面可能不会被扫描到
+      flag = getUint(s) || flag;
+    }
+    if (i < s.size() && (s[i] == 'e' || s[i] == 'E')) {
+      i++;
+      flag = flag && getInt(s); // e的前后都必须为true
+    }
+    getSpace(s);
+    return i == s.size() && flag;
+  }
+
+  //二分法细节 查找左边界
+  //<写法
+  int left_bound(vector<int> nums, int target) {
+    if (nums.size() == 0)
+      return -1;
+    int left = 0;
+    int right = nums.size(); // 注意
+
+    while (left < right) { // 注意
+      int mid = (left + right) / 2;
+      if (nums[mid] == target) {
+        right = mid;
+      } else if (nums[mid] < target) {
+        left = mid + 1;
+      } else if (nums[mid] > target) {
+        right = mid; // 注意
+      }
+    }
+    // return left;    //返回>=target的左边界位置 [0,nums.size()]
+
+    // 返回第一个target的位置 没有则返回-1；
+    {
+      if (left == nums.size())
+        return -1; //[1,2,2,4]搜索8返回left 4，越界
+                   // 类似之前算法的处理方式
+      return nums[left] == target ? left : -1;
+    }
+  }
+
+  //<= 写法 完全一致
+  int left_bound2(vector<int> nums, int target) {
+    if (nums.size() == 0)
+      return -1;
+    int left = 0;
+    int right = nums.size() - 1; // 注意
+
+    while (left <= right) { // 注意
+      int mid = (left + right) / 2;
+      if (nums[mid] == target) {
+        right = mid - 1;
+      } else if (nums[mid] < target) {
+        left = mid + 1;
+      } else if (nums[mid] > target) {
+        right = mid - 1; // 注意
+      }
+    }
+    // return left; //返回>=target的左边界位置 [0,nums.size()]
+
+    // 返回第一个target的位置 没有则返回-1；
+    {
+      if (left == nums.size())
+        return -1; //[1,2,2,4]搜索8返回left 4，越界
+                   // 类似之前算法的处理方式
+      return nums[left] == target ? left : -1;
+    }
+  }
+
+  //二分法细节 查找右边界
+  //<写法
+  int right_bound(vector<int> nums, int target) {
+    if (nums.size() == 0)
+      return -1;
+    int left = 0, right = nums.size();
+
+    while (left < right) {
+      int mid = (left + right) / 2;
+      if (nums[mid] == target) {
+        left = mid + 1; // 注意
+      } else if (nums[mid] < target) {
+        left = mid + 1;
+      } else if (nums[mid] > target) {
+        right = mid;
+      }
+    }
+    // return left - 1; //返回>=target的右边界位置 [0,nums.size()]
+
+    // 返回最后一个target的位置 没有则返回-1；
+    {
+      if (left == 0)
+        return -1; //这个例子搜索0 就是返回left 0
+      return nums[left - 1] == target ? (left - 1) : -1;
+    }
+  }
+
+  //<=写法
+  int right_bound2(vector<int> nums, int target) {
+    if (nums.size() == 0)
+      return -1;
+    int left = 0, right = nums.size() - 1;
+
+    while (left <= right) {
+      int mid = (left + right) / 2;
+      if (nums[mid] == target) {
+        left = mid + 1; // 注意
+      } else if (nums[mid] < target) {
+        left = mid + 1;
+      } else if (nums[mid] > target) {
+        right = mid - 1;
+      }
+    }
+    // return left - 1; //返回>=target的右边界位置 [0,nums.size()]
+
+    // 返回最后一个target的位置 没有则返回-1；
+    {
+      if (left == 0)
+        return -1; //这个例子搜索0 就是返回left 0
+      return nums[left - 1] == target ? (left - 1) : -1;
+    }
+  }
+
+  int kthSmallest(vector<vector<int>> &matrix, int k) {
+    struct point {
+      int val, x, y;
+      point(int val, int x, int y) : val(val), x(x), y(y) {}
+      bool operator>(const point &a) const { return this->val > a.val; }
+    };
+    priority_queue<point, vector<point>, greater<point>> que;
+    int n = matrix.size();
+    for (int i = 0; i < n; i++) {
+      que.emplace(matrix[i][0], i, 0); //每行首元素压进
+    }
+    for (int i = 0; i < k - 1; i++) {
+      point now = que.top();
+      que.pop();
+      if (now.y != n - 1) { //一行到头 会自动跳到下一行
+        que.emplace(matrix[now.x][now.y + 1], now.x, now.y + 1);
+      }
+    }
+    return que.top().val;
+  }
+
+  bool check(vector<vector<int>> &matrix, int mid, int k, int n) {
+    int i = n - 1;
+    int j = 0;
+    int num = 0;
+    //每次对于「猜测」的答案 midmid，计算矩阵中有多少数不大于 mid
+    //如果数量不少于 k，那么说明最终答案 x 不大于 mid；
+    //如果数量少于 k，那么说明最终答案 x 大于 mid。
+    while (i >= 0 && j < n) {
+      if (matrix[i][j] <= mid) {
+        num += i + 1;
+        j++;
+      } else {
+        i--;
+      }
+    }
+    return num >= k;
+  }
+
+  int kthSmallest2(vector<vector<int>> &matrix, int k) {
+    int n = matrix.size();
+    int left = matrix[0][0];
+    int right = matrix[n - 1][n - 1];
+    while (left < right) {
+      int mid = left + ((right - left) >> 1);
+      if (check(matrix, mid, k, n)) { //<=mid的个数>=k 找左边界
+        right = mid;                  //向左上角收缩
+      } else {
+        left = mid + 1; //向右下角扩大
+      }
+    }
+    return left;
+  }
+
+  string minWindow(string s, string t) {
+    unordered_map<char, int> need, window;
+    for (char c : t)
+      need[c]++;
+    int left = 0, right = 0;
+    int valid = 0;
+    //记录最小覆盖字串的其实索引和长度
+    int start = 0, len = INT_MAX;
+    while (right < s.size()) {
+      // c是移入窗口的字符
+      char c = s[right];
+      right++;
+      // 进行窗口内数据的一系列更新
+      if (need.count(c)) {
+        window[c]++;
+        if (window[c] == need[c])
+          valid++;
+      }
+
+      //判断左窗口是否需要收缩
+      while (valid == need.size()) { //窗口满足条件
+                                     // 在这里更新最小覆盖子串
+        if (right - left < len) {
+          start = left;
+          len = right - left;
+        }
+        // d 是将移出窗口的字符
+        char d = s[left];
+        // 左移窗口
+        left++;
+        // 进行窗口内数据的一系列更新
+        if (need.count(d)) {
+          if (window[d] == need[d]) {
+            valid--;
+          }
+          window[d]--;
+        }
+      }
+    }
+    return len == INT_MAX ? "" : s.substr(start, len);
+  }
+
+  int lengthOfLongestSubstring22(string s) {
+    int ans = 0;
+    int left = 0, right = 0;
+    unordered_map<char, int> window;
+    while (right < s.size()) {
+      char c = s[right];
+      right++;
+      window[c]++;
+      while (window[c] > 1) { //有重复就要从left++ 知道消除当前重复
+        char d = s[left];
+        left++;
+        window[d]--;
+      }
+      ans = max(ans, right - left);
+    }
+    return ans;
+  }
+
+  int lengthOfLIS(vector<int> &nums) {
+    int n = nums.size();
+    vector<int> dp(n + 1, 1);
+    dp[1] = 1;
+    int ans = 1;
+    for (int i = 1; i < n; i++) {
+      dp[i] = nums[i] > nums[i - 1] ? dp[i - 1] + 1 : dp[i - 1];
+      ans = max(ans, dp[i]);
+    }
+    return ans;
+  }
+
+  long long minimalKSum(vector<int> &nums, int k) {
+    sort(nums.begin(), nums.end());
+    long long ans = (long long)k * (k + 1) / 2;
+    long long last = k;
+    long long pre = -1;
+    for (int num : nums) {
+      if (num == pre)
+        continue;
+      if (num <= last) {
+        ans += last + 1 - num;
+        last++;
+        pre = num;
+      } else
+        return ans;
+    }
+    return ans;
+  }
+
+  int findNthDigit(long k) {
+    for (int i = 1;; i++) {
+      if (i * pow(10, i) > k) {
+        string s = to_string(k / i);
+        return to_string(k / i)[k % i] - '0';
+      }
+      k += pow(10, i);
+    }
+  }
+
+  bool canPartition(vector<int> &nums) {
+    int allSum = accumulate(begin(nums), end(nums), 0);
+    if (allSum % 1)
+      return 0;
+    int target = allSum / 2;
+
+    // dp[i]中的i表示背包内总和
+    // 题目中说：每个数组中的元素不会超过 100，数组的大小不会超过 200
+    // 总和不会大于20000，背包最大只需要其中一半，所以10001大小就可以
+    vector<int> dp(10001, 0);
+    // begin 0/1
+    for (int i = 0; i < nums.size(); i++) {
+      for (int j = target; j >= nums[i]; j--) {
+        dp[j] = max(dp[j], dp[j - nums[i]] + nums[i]);
+      }
+    }
+    return dp[target] == target;
+  }
+
+  vector<int> addToArrayForm(vector<int> &num, int k) {
+    vector<int> res;
+    int n = num.size();
+    for (int i = n - 1; i >= 0; --i) {
+      int sum = num[i] + k % 10;
+      k /= 10;
+      if (sum >= 10) {
+        k++; //相当于carry进位
+        sum -= 10;
+      }
+      res.push_back(sum);
+    }
+    for (; k > 0; k /= 10) {
+      res.push_back(k % 10);
+    }
+    reverse(res.begin(), res.end());
+    return res;
+  }
+
+  int nthUglyNumber(int n) {
+    vector<int> factors = {2, 3, 5};
+    unordered_set<long> seen;
+    priority_queue<long, vector<long>, greater<long>> heap;
+    seen.insert(1L);
+    heap.push(1L);
+    int ugly = 0;
+    for (int i = 0; i < n; i++) {
+      long curr = heap.top();
+      heap.pop();
+      ugly = (int)curr;
+      for (int factor : factors) {
+        long next = curr * factor;
+        if (!seen.count(next)) {
+          seen.insert(next);
+          heap.push(next);
+        }
+      }
+    }
+    return ugly;
+  }
+
+  int missingNumber4(vector<int> &nums) {
+    //二分查找
+    int n = nums.size();
+    int left = 0, right = n; //左闭右闭
+    while (left < right) {
+      int mid = left + (right - left) / 2;
+      if (nums[mid] >= mid) {
+        right--;
+      } else
+        left++;
+    }
+    return left;
+  }
+
+  // 普通回溯过不了，需要精准剪枝到第k个叶节点
+  void dsssfs(int n, int k, unordered_set<int> &used, string &tmp,
+              vector<int> &factorial) {
+    if (tmp.size() == n) {
+      return;
+    }
+    int ind =
+        0; // 用来标记当前是第几次循环,直接用i的话有问题，比如说i是3，但是只是第一次循环，那就错了
+    for (int i = 1; i <= n; ++i) {
+      if (used.find(i) != used.end())
+        continue;
+      ++ind;
+      // 需要看当前层切分后每个子节点包含的叶节点个数，所以要减一
+      int size = factorial[n - used.size() - 1];
+
+      if (k > (ind - 1) * size && k <= ind * size) {
+        tmp.push_back(i + '0');
+        used.insert(i);
+        dsssfs(n, k - size * (ind - 1), used, tmp, factorial);
+        // 无需回溯，因为从dfs出来后就已经是结果了
+      }
+    }
+  }
+
+  string getPermutation(int n, int k) {
+    unordered_set<int> used;
+    string tmp;
+    // 提前吧阶乘算出来
+    vector<int> factorial = {1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880};
+    dsssfs(n, k, used, tmp, factorial);
+    return tmp;
+  }
+  void nextPermuwwwtation(vector<int> &nums) {
+    int i = nums.size() - 2;
+    while (i >= 0 && nums[i] >= nums[i + 1]) {
+      i--;
+    }
+    if (i >= 0) {
+      int j = nums.size() - 1;
+      while (j >= 0 && nums[i] >= nums[j]) {
+        j--;
+      }
+      swap(nums[i], nums[j]);
+    }
+    reverse(nums.begin() + i + 1, nums.end());
+  }
+
+  void setZeroes(vector<vector<int>> &matrix) {
+    int m = matrix.size();
+    int n = matrix[0].size();
+    int flag_col0 = false, flag_row0 = false;
+    for (int i = 0; i < m; i++) {
+      if (!matrix[i][0]) {
+        flag_col0 = true;
+      }
+    }
+    for (int j = 0; j < n; j++) {
+      if (!matrix[0][j]) {
+        flag_row0 = true;
+      }
+    }
+    for (int i = 1; i < m; i++) {
+      for (int j = 1; j < n; j++) {
+        if (!matrix[i][j]) {
+          matrix[i][0] = matrix[0][j] = 0;
+        }
+      }
+    }
+    for (int i = 1; i < m; i++) {
+      for (int j = 1; j < n; j++) {
+        if (!matrix[i][0] || !matrix[0][j]) {
+          matrix[i][j] = 0;
+        }
+      }
+    }
+    if (flag_col0) {
+      for (int i = 0; i < m; i++) {
+        matrix[i][0] = 0;
+      }
+    }
+    if (flag_row0) {
+      for (int j = 0; j < n; j++) {
+        matrix[0][j] = 0;
+      }
+    }
+  }
 };
 
 void solve() {
   Solution mysolution;
-  //   int aa = mysolution.findRadius(
-  //       vector<int>{282475249, 622650073, 984943658, 144108930, 470211272,
-  //                   101027544, 457850878, 458777923},
-  //       vector<int>{823564440, 115438165, 784484492, 74243042, 114807987,
-  //                   137522503, 441282327, 16531729, 823378840, 143542612});
-
   vector<int> a{3, 0, 0, 0, 0, 2};
   vector<int> b{3, 0, 0, 0, 0, 2};
-  bool aa = mysolution.increasingTriplet(vector<int>{0, 4, 2, 1, 0, -1, -3});
+  mysolution.setZeroes(
+      vector<vector<int>>{{0, 1, 2, 0}, {3, 4, 5, 2}, {1, 3, 1, 5}});
   cout << "pause!" << endl;
 }
 
 int main() {
   solve();
-  vector<double> test(20, 5.0);
   cout << "program has finished..." << endl;
+  return 0;
+}
 
+// class B;
+// class A {
+// public:
+//   shared_ptr<B> pb_;
+//   ~A() { cout << "A delete\n"; }
+// };
+//
+// class B {
+// public:
+//   shared_ptr<A> pa_;
+//   ~B() { cout << "B delete\n"; }
+// };
+
+// void fun() {
+//   shared_ptr<B> pb(new B());
+//   shared_ptr<A> pa(new A());
+//   pb->pa_ = pa;
+//   pa->pb_ = pb;
+//   cout << pb.use_count() << endl;
+//   cout << pa.use_count() << endl;
+// }
+
+// int main() {
+//   fun();
+//   int a = 0;
+//   return 0;
+// }
+
+//⼿写实现智能指针类
+template <typename T> class SharedPtr {
+private:
+  size_t *m_count_;
+  T *m_ptr_;
+
+public:
+  //构造函数
+  SharedPtr() : m_ptr_(nullptr), m_count_(new size_t) {}
+  SharedPtr(T *ptr) : m_ptr_(ptr), m_count_(new size_t) { m_count_ = 1; }
+  //析构函数
+  ~SharedPtr() {
+    --(*m_count_);
+    if (*m_count_ == 0) {
+      delete m_ptr_;
+      delete m_count_;
+      m_ptr_ = nullptr;
+      m_count_ = nullptr;
+    }
+  }
+  //拷⻉构造函数
+  SharedPtr(const SharedPtr &ptr) {
+    m_count_ = ptr.m_count_;
+    m_ptr_ = ptr.m_ptr_;
+    ++(*m_count_);
+  }
+  //拷⻉赋值运算
+  void operator=(const SharedPtr &ptr) { SharedPtr(std::move(ptr)); }
+  //移动构造函数
+  SharedPtr(SharedPtr &&ptr) : m_ptr_(ptr.m_ptr_), m_count_(ptr.m_count_) {
+    ++(*m_count_);
+  }
+  //移动赋值运算
+  void operator=(SharedPtr &&ptr) { SharedPtr(std::move(ptr)); }
+  //解引⽤
+  T &operator*() { return *m_ptr_; }
+  //箭头运算
+  T *operator->() { return m_ptr_; }
+  //᯿载bool操作符
+  operator bool() { return m_ptr_ == nullptr; }
+  T *get() { return m_ptr_; }
+  size_t use_count() { return *m_count_; }
+  bool unique() { return *m_count_ == 1; }
+  void swap(SharedPtr &ptr) { std::swap(*this, ptr); }
+};
+#include <assert.h>
+//⼿写字符串函数 strcat，strcpy，strncpy，memset，memcpy实现
+//把 src 所指向的字符串复制到 dest，注意：dest定义的空间应该⽐src⼤。
+char *strcpy(char *dest, const char *src) {
+  char *ret = dest;
+  assert(dest != NULL); //优化点1：检查输⼊参数
+  assert(src != NULL);
+  while (*src != '\0')
+    *(dest++) = *(src++);
+  *dest = '\0'; //优化点2：⼿动地将最后的'\0'补上
+  return ret;
+}
+//考虑内存᯿叠的字符串拷⻉函数 优化的点
+char *strcpy(char *dest, char *src) {
+  char *ret = dest;
+  assert(dest != NULL);
+  assert(src != NULL);
+  memmove(dest, src, strlen(src) + 1);
+  return ret;
+}
+//把 src 所指向的字符串追加到 dest 所指向的字符串的结尾。
+char *strcat(char *dest, const char *src) {
+  // 1. 将⽬的字符串的起始位置先保存，最后要返回它
+  // 2. 先找到dest的结束位置,再把src拷⻉到dest中，记得在最后要加上'\0'
+  char *ret = dest;
+  assert(dest != NULL);
+  assert(src != NULL);
+  while (*dest != '\0')
+    dest++;
+  while (*src != '\0')
+    *(dest++) = *(src++);
+  *dest = '\0';
+  return ret;
+}
+//把 str1 所指向的字符串和 str2 所指向的字符串进⾏⽐较。
+//该函数返回值如下：
+//如果返回值 < 0，则表示 str1 ⼩于 str2。
+//如果返回值 > 0，则表示 str1 ⼤于 str2。
+//如果返回值 = 0，则表示 str1 等于 str2。
+int strcmp(const char *s1, const char *s2) {
+  assert(s1 != NULL);
+  assert(s2 != NULL);
+  while (*s1 != '\0' && *s2 != '\0') {
+    if (*s1 > *s2)
+      return 1;
+    else if (*s1 < *s2)
+      return -1;
+    else {
+      s1++, s2++;
+    }
+  }
+  //当有⼀个字符串已经⾛到结尾
+  if (*s1 > *s2)
+    return 1;
+  else if (*s1 < *s2)
+    return -1;
+  else
+    return 0;
+}
+//在字符串 str1 中查找第⼀次出现字符串 str2 的位置，不包含终⽌符 '\0'。
+char *strstr(char *str1, char *str2) {
+  char *s = str1;
+  assert(str1 != '\0');
+  assert(str2 != '\0');
+  if (*str2 == '\0')
+    return NULL;       //若str2为空，则直接返回空
+  while (*s != '\0') { //若不为空，则进⾏查询
+    char *s1 = s;
+    char *s2 = str2;
+    while (*s1 != '\0' && *s2 != '\0' && *s1 == *s2)
+      s1++, s2++;
+    if (*s2 == '\0')
+      return str2; //若s2先结束
+    if (*s2 != '\0' && *s1 == '\0')
+      return NULL; //若s1先结束⽽s2还没结束，则返回空
+    s++;
+  }
+  return NULL;
+}
+//模拟实现memcpy函数 从存储区 str2 复制 n 个字符到存储区 dst。
+void *memcpy(void *dest, void *src, size_t num) {
+  void *ret = dest;
+  size_t i = 0;
+  assert(dest != NULL);
+  assert(src != NULL);
+  for (i = 0; i < num; i++) {
+    //因为void* 不能直接解引⽤，所以需要强转成char*再解引⽤
+    //此处的void*实现了泛型编程
+    *(char *)dest = *(char *)src;
+    dest = (char *)dest + 1;
+    src = (char *)src + 1;
+  }
+  return ret;
+}
+
+//考虑内存chong叠的memcpy函数 优化的点
+void *memmove(void *dest, void *src, size_t num) {
+  char *p1 = (char *)dest;
+  char *p2 = (char *)src;
+  if (p1 < p2) { // p1低地址p2⾼地址
+    for (size_t i = 0; i != num; ++i)
+      *(p1++) = *(p2++);
+  } else {
+    //从后往前赋值
+    p1 += num - 1;
+    p2 += num - 1;
+    for (size_t i = 0; i != num; ++i)
+      *(p1--) = *(p2--);
+  }
+  return dest;
+}
+
+// 7、说⼀下 ++i 和 i++ 的区别
+// 菜鸡⼩贺： 这题我会！++i （前置加加）先⾃增 1再返回，i++ （后置加加）先返回 i
+// 再⾃增 1。
+// 前置加加不会产⽣临时对象，后置加加必须产⽣临时对象，临时对象会导致效率降低
+// ++i 实现：
+// int& int::operator++ () {
+// 	*this += 1；
+// 		return *this；
+// }
+// i++ 实现：
+// const int int::operator（int）{
+// 	int oldValue = *this；
+// 	++（*this）；
+// 	return oldValue； }
+
+// 9、讲讲⼤端⼩端，如何检测
+// ⼤端模式：是指数据的⾼字节保存在内存的低地址中，⽽数据的低字节保存在内存的⾼地址
+// 端。
+// ⼩端模式，是指数据的⾼字节保存在内存的⾼地址中，低位字节保存在在内存的低地址端。
+// 直接读取存放在内存中的⼗六进制数值，取低位进⾏值判断
+// ⽤共同体来进⾏判断
+// union
+// 共同体所有数据成员是共享⼀段内存的，后写⼊的成员数据将覆盖之前的成员数据，成
+// 	员数据都有相同的⾸地址。Union 的⼤⼩为最⼤数据成员的⼤⼩。
+// 	union 的成员数据共⽤内存，并且⾸地址都是低地址⾸字节。Int i =
+// 1时：⼤端存储1放在最⾼ 	位，⼩端存储1放在最低位。当读取char
+// ch时，是最低地址⾸字节，⼤⼩端会显示不同的值。
+// int a = 0x12345678;
+// int *c = &a;
+// c[0] == 0x12 ⼤端模式
+// c[0] == 0x78 ⼩段模式
+
+void manyzhishidian() {
   //   string str1 = "hi,test,hello";
   //   string str2 = "hi,test";
   //   //字符串比较
@@ -2440,17 +3772,50 @@ int main() {
   //   vector<int> a{34, 66, 2, 5, 95, 4, 46, 27};
   //   BubbleSort(a, a.size()); // cout => 2 4 5 27 34 46 66 95
 
-  auto InsertSort = [](std::vector<int> &nums, int n) {
-    if (n <= 1)
-      return;
-    for (int i = 0; i < n; ++i) {
-      for (int j = i; j > 0 && nums[j] < nums[j - 1]; --j) {
-        std::swap(nums[j], nums[j - 1]);
-      }
-    }
-  };
-  std::vector<int> nums = {4, 6, 5, 3, 2, 1};
-  InsertSort(nums, 6); // cout => 1,2,3,4,5,6
+  //   auto InsertSort = [](std::vector<int> &nums, int n) {
+  //     if (n <= 1)
+  //       return;
+  //     for (int i = 0; i < n; ++i) {
+  //       for (int j = i; j > 0 && nums[j] < nums[j - 1]; --j) {
+  //         std::swap(nums[j], nums[j - 1]);
+  //       }
+  //     }
+  //   };
+  //   std::vector<int> nums = {4, 6, 5, 3, 2, 1};
+  //   InsertSort(nums, 6); // cout => 1,2,3,4,5,6
 
-  return 0;
+  // 对于32位的整数，大端机器会在内存的低地址存储高位，在高地址存储低位。
+  // 小端机器恰好相反，内存的低地址存储低位，在高地址存储高位
+  int a = 0x12345678;
+  char *p;
+  p = (char *)&a;
+  if (*p == 0x78) {
+    cout << *p << endl; // insert 小端
+  } else if (*p == 0x12) {
+    cout << *p << endl;
+  }
 }
+
+// #include <algorithm>
+// #include <iostream>
+// using namespace std;
+// class SingleInstance {
+// public:
+//   static SingleInstance *GetInstance() {
+//     static SingleInstance ins;
+//     return &ins;
+//   }
+//   ~SingleInstance(){};
+//
+// private:
+//   //涉及到创建对象的函数都设置为private
+//   SingleInstance() { std::cout << "SingleInstance() 饿汉" << std::endl; }
+//   SingleInstance(const SingleInstance &other){};
+//   SingleInstance &operator=(const SingleInstance &other) { return *this; }
+// };
+// int main() {
+//   //因为不能创建对象所以通过静态成员函数的⽅法返回静态成员变ᰁ
+//   SingleInstance *ins = SingleInstance::GetInstance();
+//   return 0;
+// }
+// //输出 SingleInstance() 饿汉
